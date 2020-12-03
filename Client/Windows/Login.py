@@ -10,8 +10,20 @@
 
 from PyQt5 import QtCore, QtWidgets
 
-from Helpers.customized import PasswordEdit
 import socket
+from pickle import dumps
+
+from Helpers.customized import PasswordEdit
+
+
+def auth(args):
+    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host = socket.gethostname()
+    port = 9003
+    soc.connect((host, port))
+    soc.send(dumps(args))
+    verify = soc.recv(1).decode('utf-8')
+    return verify
 
 
 class Login(QtWidgets.QWidget):
@@ -181,33 +193,23 @@ class Login(QtWidgets.QWidget):
     def login(self):
         username = self.lineEdit.text()
         password = self.lineEdit_2.text()
-        if self.auth(username, password, "login") == "no":
+        if auth([username, password, "login"]) == "no":
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Critical)
             msg.setText("Error")
             msg.setInformativeText('Username or password is wrong. Try again...')
             msg.setWindowTitle("Error")
             msg.exec_()
+        else:
+            self.switch_window.emit(username)
 
     def register(self):
         username = self.lineEdit.text()
         password = self.lineEdit_2.text()
-        if self.auth(username, password, "register") == "yes":
+        if auth([username, password, "register"]) == "yes":
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Critical)
             msg.setText("Success")
             msg.setInformativeText('User registered. Login below...')
             msg.setWindowTitle("Success")
             msg.exec_()
-        
-    def auth(self, usn, pwd, option):
-        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        host = socket.gethostname()
-        port = 9001
-        soc.connect((host, port))
-        soc.send(bytes(option), 'utf-8')
-        soc.send(bytes(usn), 'utf-8')
-        soc.send(bytes(pwd), 'utf-8')
-        verify = soc.recv(128).decode('utf-8')
-        return verify
-        

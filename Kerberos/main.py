@@ -1,9 +1,11 @@
 import socket
 import sqlite3
 from cryptography.fernet import Fernet
+from pickle import loads
+from threading import *
 
 
-def login(username, password):
+def login(soc, username, password):
     conn = sqlite3.connect('sqlite.db')
     users = conn.execute('''SELECT *
             FROM USER''')
@@ -14,12 +16,12 @@ def login(username, password):
             if cipher.decrypt(_[1]).decode("utf-8") == password:
                 flag = True
     if flag:
-        client.send(bytes("yes", 'utf-8'))
+        soc.send(bytes("y", 'utf-8'))
     else:
-        client.send(bytes("no", 'utf-8'))
+        soc.send(bytes("n", 'utf-8'))
 
 
-def register(username, password):
+def register(soc, username, password):
     conn = sqlite3.connect('sqlite.db')
     key = Fernet.generate_key()
     cipher = Fernet(key)
@@ -28,20 +30,30 @@ def register(username, password):
                 (USERNAME, PASSWORD, ENCRYPT_KEY) VALUES
                 (?, ?, ?);''', (username, encryptedPassword, key))
     conn.commit()
-    client.send(bytes("yes", 'utf-8'))
+    soc.send(bytes("y", 'utf-8'))
+
+
+def authentication(soc):
+    args = loads(soc.recv(1024))
+    if args[2] == "login":
+        login(soc, args[0], args[1])
+    elif args[2] == "register":
+        register(soc, args[0], args[1])
+
+
+def authenticationServer():
+    authServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host = socket.gethostname()
+    port = 9003
+    authServer.bind((host, port))
+    clients = []
+    authServer.listen()
+    while True:
+        clients.append(authServer.accept())
+        thread = Thread(target=authentication, args=(clients[-1][0],))
+        thread.start()
 
 
 if __name__ == "__main__":
-    kerberos = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = socket.gethostname()
-    port = 9001
-    kerberos.bind((host, port))
-    kerberos.listen()
-    client, addr = kerberos.accept()
-    function = client.recv(128).decode("utf-8")
-    username = client.recv(128).decode("utf-8")
-    password = client.recv(128).decode("utf-8")
-    if function == "login":
-        login(username, password)
-    elif function == "register":
-        register(username, password)
+    authThread = Thread(target=authenticationServer)
+    authThread.start()
