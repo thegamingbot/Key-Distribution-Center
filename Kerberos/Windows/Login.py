@@ -149,6 +149,7 @@ class Login(QtWidgets.QWidget):
                                         "")
         self.pushButton_2.setDefault(False)
         self.pushButton_2.setFlat(False)
+        self.pushButton_2.clicked.connect(self.register)
         self.formLayout_2.setWidget(8, QtWidgets.QFormLayout.SpanningRole, self.pushButton_2)
 
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
