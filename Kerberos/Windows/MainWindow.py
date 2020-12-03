@@ -5,10 +5,9 @@ class MainWindow(QtWidgets.QWidget):
 
     switch_window = QtCore.pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, username):
         QtWidgets.QWidget.__init__(self)
-        self.setWindowTitle('Main Window')
-
+        self.setWindowTitle(username + " - Client")
         layout = QtWidgets.QGridLayout()
 
         self.line_edit = QtWidgets.QLineEdit()

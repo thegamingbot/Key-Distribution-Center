@@ -18,7 +18,7 @@ from Helpers.customized import PasswordEdit
 class Login(QtWidgets.QWidget):
     """Basic login form.
     """
-    switch_window = QtCore.pyqtSignal()
+    switch_window = QtCore.pyqtSignal(str)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -198,7 +198,7 @@ class Login(QtWidgets.QWidget):
                     msg.setWindowTitle("Error")
                     msg.exec_()
                 else:
-                    self.switch_window.emit()
+                    self.switch_window.emit(username)
                     break
         if not flag:
             msg = QtWidgets.QMessageBox()
