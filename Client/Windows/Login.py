@@ -9,10 +9,9 @@
 
 
 from PyQt5 import QtCore, QtWidgets
-import sqlite3
-from cryptography.fernet import Fernet
 
 from Helpers.customized import PasswordEdit
+import socket
 
 
 class Login(QtWidgets.QWidget):
@@ -180,47 +179,35 @@ class Login(QtWidgets.QWidget):
         self.pushButton_2.setText(_translate("Form", "Register"))
 
     def login(self):
-        conn = sqlite3.connect('sqlite.db')
         username = self.lineEdit.text()
         password = self.lineEdit_2.text()
-        users = conn.execute('''SELECT *
-                FROM USER''')
-        flag = False
-        for _ in users:
-            if username == _[0]:
-                flag = 1
-                cipher = Fernet(_[2])
-                if cipher.decrypt(_[1]).decode("utf-8") != password:
-                    msg = QtWidgets.QMessageBox()
-                    msg.setIcon(QtWidgets.QMessageBox.Critical)
-                    msg.setText("Error")
-                    msg.setInformativeText('Wrong password. Try again...')
-                    msg.setWindowTitle("Error")
-                    msg.exec_()
-                else:
-                    self.switch_window.emit(username)
-                    break
-        if not flag:
+        if self.auth(username, password, "login") == "no":
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Critical)
             msg.setText("Error")
-            msg.setInformativeText('User not registered. Register below...')
+            msg.setInformativeText('Username or password is wrong. Try again...')
             msg.setWindowTitle("Error")
             msg.exec_()
 
     def register(self):
-        conn = sqlite3.connect('sqlite.db')
-        key = Fernet.generate_key()
-        cipher = Fernet(key)
         username = self.lineEdit.text()
-        encryptedPassword = cipher.encrypt(bytes(self.lineEdit_2.text(), "utf-8"))
-        conn.execute('''INSERT INTO USER
-                    (USERNAME, PASSWORD, ENCRYPT_KEY) VALUES
-                    (?, ?, ?);''', (username, encryptedPassword, key))
-        conn.commit()
-        msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Critical)
-        msg.setText("Success")
-        msg.setInformativeText('User registered. Login below...')
-        msg.setWindowTitle("Success")
-        msg.exec_()
+        password = self.lineEdit_2.text()
+        if self.auth(username, password, "register") == "yes":
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Success")
+            msg.setInformativeText('User registered. Login below...')
+            msg.setWindowTitle("Success")
+            msg.exec_()
+        
+    def auth(self, usn, pwd, option):
+        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        host = socket.gethostname()
+        port = 9001
+        soc.connect((host, port))
+        soc.send(bytes(option), 'utf-8')
+        soc.send(bytes(usn), 'utf-8')
+        soc.send(bytes(pwd), 'utf-8')
+        verify = soc.recv(128).decode('utf-8')
+        return verify
+        
