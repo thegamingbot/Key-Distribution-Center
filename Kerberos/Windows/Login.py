@@ -218,3 +218,9 @@ class Login(QtWidgets.QWidget):
                     (USERNAME, PASSWORD, ENCRYPT_KEY) VALUES
                     (?, ?, ?);''', (username, encryptedPassword, key))
         conn.commit()
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Critical)
+        msg.setText("Success")
+        msg.setInformativeText('User registered. Login below...')
+        msg.setWindowTitle("Success")
+        msg.exec_()
