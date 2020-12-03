@@ -4,13 +4,13 @@ from pickle import loads
 from PyQt5 import QtCore, QtWidgets
 
 
-def getTicket(username):
-    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = socket.gethostname()
-    port = 9003
-    soc.connect((host, port))
-    soc.send(username)
-    ticket = loads(soc.recv(2048))
+# def getTicket(username):
+#     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#     host = socket.gethostname()
+#     port = 9003
+#     soc.connect((host, port))
+#     soc.send(username)
+#     ticket = loads(soc.recv(2048))
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -24,4 +24,4 @@ class MainWindow(QtWidgets.QWidget):
         self.line_edit = QtWidgets.QLineEdit()
         layout.addWidget(self.line_edit)
         self.setLayout(layout)
-        getTicket(username)
+        # getTicket(username)

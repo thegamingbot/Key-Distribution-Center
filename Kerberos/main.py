@@ -2,6 +2,7 @@ import socket
 import sqlite3
 from cryptography.fernet import Fernet
 from pickle import loads
+from uuid import uuid4
 from threading import *
 
 
