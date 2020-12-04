@@ -4,6 +4,8 @@ from threading import Thread
 MAX = 1024
 IP = "127.0.0.1"
 PORT = 9001
+sockets_list = []
+clients = {}
 
 
 # Handles message receiving
@@ -41,13 +43,11 @@ def recvMessage(current_socket):
         print(f'Received message from {user["data"].decode("utf-8")}: {message["data"].decode("utf-8")}')
         # Iterate over connected clients and broadcast message
         for csoc in clients:
-            # But don't sent it to sender
-            if csoc != current_socket:
-                # Send user and message (both with their headers)
-                csoc.send(user['header'] + user['data'] + message['header'] + message['data'])
+            # Send user and message (both with their headers)
+            csoc.send(user['header'] + user['data'] + message['header'] + message['data'])
 
 
-def connectionHandler():
+def connectionHandler(ssoc):
     while True:
         # Accept new connection
         csoc, client_address = ssoc.accept()
@@ -62,19 +62,23 @@ def connectionHandler():
         clients[csoc] = user
         print('Accepted new connection from {}:{}, username: {}'.format(*client_address,
                                                                         user['data'].decode('utf-8')))
-        Thread(target=recvMessage, args=(csoc, )).start()
+        Thread(target=recvMessage, args=(csoc,)).start()
 
 
-# Create a socket
-ssoc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-ssoc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# Bind
-ssoc.bind((IP, PORT))
-# Listen
-ssoc.listen()
-# List of sockets for select.select()
-sockets_list = [ssoc]
-# List of connected clients - socket as a key, user header and name as data
-clients = {}
-print(f'Listening for connections on {IP}:{PORT}...')
-connectionHandler()
+def server_run():
+    # Create a socket
+    ssoc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    ssoc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    # Bind
+    ssoc.bind((IP, PORT))
+    # Listen
+    ssoc.listen()
+    # List of sockets for select.select()
+    sockets_list.append(ssoc)
+    # List of connected clients - socket as a key, user header and name as data
+    print(f'Listening for connections on {IP}:{PORT}...')
+    connectionHandler(ssoc)
+
+
+if __name__ == '__main__':
+    server_run()
