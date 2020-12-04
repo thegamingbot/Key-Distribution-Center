@@ -1,6 +1,7 @@
 import socket
 import sys
 from threading import Thread
+from time import sleep
 
 
 def send():
@@ -14,6 +15,7 @@ def send():
 
 
 def receive():
+    sleep(5)
     while True:
         # Receive our "header" containing username length, it's size is defined and constant
         user_len = client_socket.recv(MAX)
@@ -39,7 +41,6 @@ my_username = input("Username: ")
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((IP, PORT))
-client_socket.setblocking(False)
 
 # Prepare username and header and send them
 username = my_username.encode('utf-8')
