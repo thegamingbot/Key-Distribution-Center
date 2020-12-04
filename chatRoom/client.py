@@ -15,7 +15,6 @@ def send():
 
 
 def receive():
-    sleep(5)
     while True:
         # Receive our "header" containing username length, it's size is defined and constant
         user_len = client_socket.recv(MAX)
