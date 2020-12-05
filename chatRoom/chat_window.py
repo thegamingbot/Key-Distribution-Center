@@ -1,8 +1,8 @@
 import sys
 import socket
-import time
-from threading import Thread
+from time import *
 from PyQt5 import QtCore, QtWidgets
+from threading import Thread
 
 MAX = 1024
 
@@ -10,21 +10,22 @@ MAX = 1024
 class ChatRoom(QtWidgets.QWidget):
     """Basic chat window.
     """
-    switch_window = QtCore.pyqtSignal(str)
 
     def __init__(self, name):
         super().__init__()
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.IP = "127.0.0.1"
-        self.PORT = 9001
+        self.PORT = 9002
         self.name = name
+        self.worker = workerThread(self.client_socket)
         self.widget = QtWidgets.QWidget(self)
         self.verticalLayout_3 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.widget)
-        self.verticalLayout_1 = QtWidgets.QVBoxLayout(self.widget)
+        self.verticalLayout_1 = QtWidgets.QVBoxLayout()
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_1 = QtWidgets.QHBoxLayout()
+
         self.messagesBox = QtWidgets.QTextEdit(self.widget)
         self.send = QtWidgets.QPushButton(self.widget)
         self.textBox = QtWidgets.QTextEdit(self.widget)
@@ -78,6 +79,7 @@ class ChatRoom(QtWidgets.QWidget):
                                    "selection-background-color: darkgray;\n"
                                    "}")
         self.textBox.setFocus()
+        self.textBox.ensureCursorVisible()
 
         self.send.setMinimumSize(QtCore.QSize(0, 60))
         self.send.setAutoFillBackground(False)
@@ -102,6 +104,7 @@ class ChatRoom(QtWidgets.QWidget):
         self.verticalLayout_2.setContentsMargins(9, 0, 0, 0)
         self.verticalLayout_3.setContentsMargins(-1, 15, -1, -1)
         self.verticalLayout_2.addLayout(self.verticalLayout_3)
+
         self.horizontalLayout_3.addWidget(self.widget)
         self.horizontalLayout_3.setStretch(0, 1)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
@@ -116,13 +119,33 @@ class ChatRoom(QtWidgets.QWidget):
     def send_msg(self):
         msg = self.textBox.toPlainText()
         # msg = input(f'{my_username} --> ')
-        if msg == "quit":
-            sys.exit()
         msg = msg.encode('utf-8')
         msg_len = f"{len(msg):<{MAX}}".encode('utf-8')
         self.client_socket.send(msg_len + msg)
 
-    def receive(self):
+    def receive(self, message):
+        msg = self.messagesBox.toPlainText() + "\n" + str(ctime(time())) + "\n" + self.name + ' --> ' + message + "\n"
+        self.messagesBox.setText(msg)
+        self.messagesBox.verticalScrollBar().setValue(self.messagesBox.verticalScrollBar().maximum())
+
+    def client_run(self):
+        self.client_socket.connect((self.IP, self.PORT))
+        # Prepare username and header and send them
+        username = self.name.encode('utf-8')
+        username_len = f"{len(username):<{MAX}}".encode('utf-8')
+        self.client_socket.send(username_len + username)
+        self.worker.start()
+        self.worker.updateMessage.connect(self.receive)
+
+
+class workerThread(QtCore.QThread):
+    updateMessage = QtCore.pyqtSignal(str)
+
+    def __init__(self, client):
+        super().__init__()
+        self.client_socket = client
+
+    def run(self):
         while True:
             # Receive our "header" containing username length, it's size is defined and constant
             user_len = self.client_socket.recv(MAX)
@@ -131,17 +154,9 @@ class ChatRoom(QtWidgets.QWidget):
             # Convert header to int value
             username_length = int(user_len.decode('utf-8').strip())
             # Receive and decode username
-            user = self.client_socket.recv(username_length).decode('utf-8')
+            self.client_socket.recv(username_length).decode('utf-8')
             # Now do the same for message
             message_len = self.client_socket.recv(MAX)
             message_length = int(message_len.decode('utf-8').strip())
             message = self.client_socket.recv(message_length).decode('utf-8')
-            msg = self.messagesBox.toPlainText() + '\n' + str(time.localtime(time.time())) + self.name + ' --> ' + message
-            self.messagesBox.setText(msg)
-
-    def client_run(self):
-        self.client_socket.connect((self.IP, self.PORT))
-        # Prepare username and header and send them
-        username = self.name.encode('utf-8')
-        username_len = f"{len(username):<{MAX}}".encode('utf-8')
-        self.client_socket.send(username_len + username)
+            self.updateMessage.emit(message)

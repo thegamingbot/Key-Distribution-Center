@@ -42,8 +42,9 @@ class Login(QtWidgets.QWidget):
         self.label_3 = QtWidgets.QLabel(self.widget)
         self.lineEdit = QtWidgets.QLineEdit(self.widget)
         self.label_2 = QtWidgets.QLabel(self.widget)
-        self.formLayout_2 = QtWidgets.QFormLayout()
         self.label = QtWidgets.QLabel(self.widget)
+
+        self.formLayout_2 = QtWidgets.QFormLayout()
         self.verticalLayout_3 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.widget)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
@@ -162,7 +163,6 @@ class Login(QtWidgets.QWidget):
         self.pushButton_2.setFlat(False)
         self.pushButton_2.clicked.connect(self.register)
         self.formLayout_2.setWidget(8, QtWidgets.QFormLayout.SpanningRole, self.pushButton_2)
-
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.formLayout_2.setItem(6, QtWidgets.QFormLayout.SpanningRole, spacerItem)
         self.verticalLayout_3.addLayout(self.formLayout_2)
