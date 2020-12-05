@@ -2,7 +2,6 @@ import sys
 import socket
 from time import *
 from PyQt5 import QtCore, QtWidgets
-from threading import Thread
 
 MAX = 1024
 
