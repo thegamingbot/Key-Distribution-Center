@@ -1,23 +1,35 @@
+import base64
 import socket
 import sqlite3
 from cryptography.fernet import Fernet
-from pickle import loads
+from pickle import loads, dumps
 from uuid import uuid4
 from threading import *
 
 
+masterKey = Fernet.generate_key()
+
+
 def login(soc, username, password):
-    conn = sqlite3.connect('./sqlite.db')
+    conn = sqlite3.connect('../sqlite.db')
     users = conn.execute('''SELECT *
             FROM USER''')
     flag = False
+    TGT = []
     for _ in users:
         if username == _[0]:
             cipher = Fernet(_[2])
             if cipher.decrypt(_[1]).decode("utf-8") == password:
+                sessionKey = uuid4()
+                userKey = password * 5
+                print(base64.urlsafe_b64encode(bytes(userKey[:32], "utf-8")))
+                TGT.append(Fernet(masterKey).encrypt(bytes(str(sessionKey), "utf-8")))
+                TGT.append(Fernet(base64.urlsafe_b64encode(bytes(userKey[:32], "utf-8"))).encrypt(bytes(str(sessionKey), "utf-8")))
+                print(TGT)
                 flag = True
     if flag:
-        soc.send(bytes("y", 'utf-8'))
+        soc.send(bytes("t", 'utf-8'))
+        soc.send(dumps(TGT))
     else:
         soc.send(bytes("n", 'utf-8'))
 

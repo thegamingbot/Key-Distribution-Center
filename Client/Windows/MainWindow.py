@@ -15,13 +15,15 @@ from PyQt5 import QtCore, QtWidgets
 
 class MainWindow(QtWidgets.QWidget):
 
-    switch_window = QtCore.pyqtSignal(str)
-
-    def __init__(self, username):
+    def __init__(self, username, sessionKey, TGT):
         QtWidgets.QWidget.__init__(self)
-        self.setWindowTitle(username + " - Client")
+        self.username = username
+        self.sessionKey = sessionKey
+        self.TGT = TGT
+        self.setWindowTitle(self.username + " - Client")
         layout = QtWidgets.QGridLayout()
         self.line_edit = QtWidgets.QLineEdit()
+        self.line_edit.setText(str(self.sessionKey) + " " + str(self.TGT))
         layout.addWidget(self.line_edit)
         self.setLayout(layout)
         # getTicket(username)

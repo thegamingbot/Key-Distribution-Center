@@ -10,7 +10,7 @@ class Controller:
         self.login.switch_window.connect(self.show_main)
         self.login.show()
 
-    def show_main(self, text):
-        self.window = MainWindow(text)
+    def show_main(self, text, sessionKey, TGT):
+        self.window = MainWindow(text, sessionKey, TGT)
         self.login.close()
         self.window.show()
