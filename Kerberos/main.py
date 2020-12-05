@@ -7,7 +7,7 @@ from threading import *
 
 
 def login(soc, username, password):
-    conn = sqlite3.connect('sqlite.db')
+    conn = sqlite3.connect('./sqlite.db')
     users = conn.execute('''SELECT *
             FROM USER''')
     flag = False
@@ -23,7 +23,7 @@ def login(soc, username, password):
 
 
 def register(soc, username, password):
-    conn = sqlite3.connect('sqlite.db')
+    conn = sqlite3.connect('../sqlite.db')
     key = Fernet.generate_key()
     cipher = Fernet(key)
     encryptedPassword = cipher.encrypt(bytes(password, "utf-8"))
