@@ -1,16 +1,18 @@
 import os
 import sys
 import time
+from pickle import dumps
 from socket import *
 from PyQt5 import QtWidgets, QtCore
 from cryptography.fernet import Fernet
 
-from Client.Windows.FileIOClient.verify import *
+from verify import *
 
 
 class ClientUI(QtWidgets.QWidget):
     def __init__(self, ticket):
         super().__init__()
+        self.clientSocket = socket(AF_INET, SOCK_STREAM)
         self.host = ticket[2]
         self.port = ticket[3]
         self.sessionKey = Fernet(ticket[4]).decrypt(ticket[1])
@@ -19,6 +21,7 @@ class ClientUI(QtWidgets.QWidget):
         self.widget = QtWidgets.QWidget(self)
         self.filePath = ""
 
+        self.label = QtWidgets.QLabel(self.widget)
         self.windowSpinBar = QtWidgets.QSpinBox(self.widget)
         self.pushButton_1 = QtWidgets.QPushButton(self.widget)
         self.pushButton = QtWidgets.QPushButton(self.widget)
@@ -65,6 +68,20 @@ class ClientUI(QtWidgets.QWidget):
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.formLayout_2.setItem(0, QtWidgets.QFormLayout.SpanningRole, spacerItem)
 
+        self.label.setText("Sliding Window Size")
+        self.label.setMinimumSize(QtCore.QSize(0, 40))
+        self.label.setStyleSheet("QLabel {\n"
+                                 "color: red;\n"
+                                 "font: 18pt \"Verdana\";\n"
+                                 "border: None;\n"
+                                 "border-bottom-color: white;\n"
+                                 "border-radius: 10px;\n"
+                                 "padding: 0 8px;\n"
+                                 "background: rgb(0,0,0);\n"
+                                 "selection-background-color: darkgray;\n"
+                                 "}")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.label)
+
         self.windowSpinBar.setMinimumSize(QtCore.QSize(0, 40))
         self.windowSpinBar.setStyleSheet("QSpinBox {\n"
                                          "color: red;\n"
@@ -76,7 +93,7 @@ class ClientUI(QtWidgets.QWidget):
                                          "background: rgb(0,0,0);\n"
                                          "selection-background-color: darkgray;\n"
                                          "}")
-        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.windowSpinBar)
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.windowSpinBar)
 
         self.line.setStyleSheet("border: 2px solid white;")
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
@@ -141,12 +158,23 @@ class ClientUI(QtWidgets.QWidget):
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         QtCore.QMetaObject.connectSlotsByName(self)
         self.retranslateUi("Select a file to send")
+        self.sendTicket()
 
     def retranslateUi(self, btn):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "Client"))
         self.pushButton.setText(_translate("MainWindow", btn))
         self.pushButton_1.setText(_translate("Send", "Send"))
+
+    def sendTicket(self):
+        self.setEnabled(False)
+        self.clientSocket.connect((self.host, self.port))
+        self.clientSocket.send(dumps([self.sessionKey, self.ticket]))
+        verify = self.clientSocket.recv(1).decode("utf-8")
+        if verify == "n":
+            sys.exit()
+        else:
+            self.setEnabled(True)
 
     def getFiles(self):
         dlg = QtWidgets.QFileDialog()
@@ -163,11 +191,9 @@ class ClientUI(QtWidgets.QWidget):
         # Set the timeout to 2 seconds
         timeOut = 2
         # Create the client socket
-        clientSocket = socket(AF_INET, SOCK_STREAM)
         # Connect the socket to the appropriate host and port
-        clientSocket.connect((self.host, self.port))
         # Extract the file name from the file path and send it to the receiver
-        clientSocket.send(bytes(os.path.basename(self.filePath), "utf-8"))
+        self.clientSocket.send(bytes(os.path.basename(self.filePath), "utf-8"))
         # Lower bound of the window
         base = 1
         # Next sequence number
@@ -191,7 +217,7 @@ class ClientUI(QtWidgets.QWidget):
                 # Create the send packet with the data and sequence number
                 sendPacket = makePkt(nextSeqN, data)
                 # Send the created packet
-                clientSocket.send(sendPacket)
+                self.clientSocket.send(sendPacket)
                 # Go the the next sequence number
                 nextSeqN = nextSeqN + 1
                 # Append the send packet to the window
@@ -205,7 +231,7 @@ class ClientUI(QtWidgets.QWidget):
             # Try receiving the acknowledgement
             try:
                 # Receive the acknowledgement
-                packet = clientSocket.recv(4096)
+                packet = self.clientSocket.recv(4096)
                 # Parse and verify the received data
                 recvPacket, isCorrupt = parseAndVerify(packet)
                 # If the data is not corrupted
@@ -227,10 +253,10 @@ class ClientUI(QtWidgets.QWidget):
                     # Loop through the window
                     for i in window:
                         # Send each packet in the widow
-                        clientSocket.send(i)
+                        self.clientSocket.send(i)
         # Close the file
         fp.close()
         # Close the socket
-        clientSocket.close()
+        self.clientSocket.close()
         # Exit the application
         sys.exit(0)

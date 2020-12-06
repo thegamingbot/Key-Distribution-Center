@@ -3,7 +3,6 @@ from socket import *
 from pickle import loads, dumps
 
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QPalette, QColor
 from cryptography.fernet import Fernet
 
 
@@ -118,17 +117,16 @@ class MainWindow(QtWidgets.QWidget):
         self.cb.setEnabled(False)
         soc = socket(AF_INET, SOCK_STREAM)
         host = gethostname()
-        port = 9005
+        port = 9008
         selection = self.cb.currentText()
         soc.connect((host, port))
-        print(self.sessionKey)
         soc.send(dumps([self.sessionKey, self.TGT, Fernet(self.sessionKey)
                        .encrypt(bytes(selection, "utf-8"))]))
         if soc.recv(1).decode("utf-8") == "n":
             sys.exit()
         ticket = loads(soc.recv(2048))
         self.cb.setEnabled(True)
-        ticket.appent(self.sessionKey)
+        ticket.append(self.sessionKey)
         # "Chat App Server", "Quiz Server", "File Transfer Server"
         if selection == "Chat App Server":
             self.chatApp.emit(ticket)

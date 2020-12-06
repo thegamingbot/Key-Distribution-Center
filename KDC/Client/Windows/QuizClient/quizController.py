@@ -1,12 +1,12 @@
-from Client.Windows.QuizClient.QuizForm import QuizForm
-from Client.Windows.QuizClient.resultUI import resultUI
-from Client.Windows.QuizClient.startUI import startUI
+from QuizForm import QuizForm
+from resultUI import resultUI
+from startUI import startUI
 
 
 class QuizController:
     def __init__(self, ticket):
         self.ticket = ticket
-        self.login = startUI()
+        self.login = startUI(ticket)
 
     def show_login(self):
         self.login.switch_window.connect(self.show_main)

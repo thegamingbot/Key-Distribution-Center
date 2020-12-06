@@ -1,6 +1,6 @@
-from Client.Windows.FileIOClient.ClientGUI import ClientUI
-from Client.Windows.QuizClient.quizController import QuizController
-from Client.Windows.chatRoomClient.roomController import ChatRoomController
+from FileIOClient.ClientGUI import ClientUI
+from QuizClient.quizController import QuizController
+from chatRoomClient.roomController import ChatRoomController
 from Windows.Login import Login
 from Windows.MainWindow import MainWindow
 

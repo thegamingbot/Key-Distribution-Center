@@ -1,7 +1,11 @@
 import socket
+import sqlite3
+from pickle import loads
 from threading import Thread
 
-from Kerberos.constants import IPsAndPorts
+from cryptography.fernet import Fernet
+
+from KDC.constants import IPsAndPorts
 
 MAX = 1024
 IP = IPsAndPorts["Chat App Server"][0]
@@ -49,11 +53,27 @@ def recvMessage(current_socket):
             csoc.send(user['header'] + user['data'] + message['header'] + message['data'])
 
 
+def recvTicket(csoc):
+    ticket = loads(csoc.recv(2048))
+    conn = sqlite3.connect('../../sqlite.db')
+    server = conn.execute('''
+        SELECT USERNAME, PASSWORD, ENCRYPT_KEY
+        FROM SERVER WHERE USERNAME='chatApp';''').fetchone()
+    serverKey = Fernet(server[2]).decrypt(server[1])
+    if Fernet(serverKey).decrypt(ticket[1]) == ticket[0]:
+        csoc.send(bytes("y", "utf-8"))
+    else:
+        csoc.send(bytes("n", "utf-8"))
+        csoc.close()
+        while True:
+            x = 1
+
+
 def connectionHandler(ssoc):
     while True:
         # Accept new connection
         csoc, client_address = ssoc.accept()
-        # Client should send his name right away, receive it
+        recvTicket(csoc)
         user = receive_message(csoc)
         # If False - client disconnected before he sent his name
         if user is False:

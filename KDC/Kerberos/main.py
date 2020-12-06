@@ -4,22 +4,9 @@ import sqlite3
 from cryptography.fernet import Fernet
 from pickle import loads, dumps
 from threading import *
-
-from Server.FileIOServer.fileIOServer import fileIOServer
-from Server.QuizServer.quizServer import quizServer
-from Server.chatRoomServer.server import server_run
-from constants import IPsAndPorts
+from KDC.constants import IPsAndPorts
 
 masterKey = Fernet.generate_key()
-
-
-def runServer(server):
-    if server == "Chat App Server":
-        server_run()
-    elif server == "Quiz Server":
-        fileIOServer()
-    else:
-        quizServer()
 
 
 def login(soc, username, password):
@@ -68,7 +55,7 @@ def authentication(soc):
 def authenticationServer():
     authServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = socket.gethostname()
-    port = 9004
+    port = 9009
     authServer.bind((host, port))
     clients = []
     authServer.listen()
@@ -79,12 +66,42 @@ def authenticationServer():
 
 
 def ticketGeneration(sessionKey, server):
-    servers = ["Chat App Server", "Quiz Server", "File Transfer Server"]
     decryptedServer = Fernet(sessionKey).decrypt(server).decode("utf-8")
-    if decryptedServer in servers:
+    conn = sqlite3.connect('../sqlite.db')
+    if decryptedServer == "Chat App Server":
+        server = conn.execute('''
+            SELECT USERNAME, PASSWORD, ENCRYPT_KEY
+            FROM SERVER WHERE USERNAME='chatApp';''').fetchone()
+        serverKey = Fernet(server[2]).decrypt(server[1])
         newSessionKey = Fernet.generate_key()
         ticket = [
-            Fernet(masterKey).encrypt(newSessionKey),
+            Fernet(serverKey).encrypt(newSessionKey),
+            Fernet(sessionKey).encrypt(newSessionKey),
+            IPsAndPorts[decryptedServer][0],
+            IPsAndPorts[decryptedServer][1]
+        ]
+        return [ticket, decryptedServer]
+    elif decryptedServer == "Quiz Server":
+        server = conn.execute('''
+            SELECT USERNAME, PASSWORD, ENCRYPT_KEY
+            FROM SERVER WHERE USERNAME='quiz';''').fetchone()
+        serverKey = Fernet(server[2]).decrypt(server[1])
+        newSessionKey = Fernet.generate_key()
+        ticket = [
+            Fernet(serverKey).encrypt(newSessionKey),
+            Fernet(sessionKey).encrypt(newSessionKey),
+            IPsAndPorts[decryptedServer][0],
+            IPsAndPorts[decryptedServer][1]
+        ]
+        return [ticket, decryptedServer]
+    elif decryptedServer == "File Transfer Server":
+        server = conn.execute('''
+            SELECT USERNAME, PASSWORD, ENCRYPT_KEY
+            FROM SERVER WHERE USERNAME='fileTransfer';''').fetchone()
+        serverKey = Fernet(server[2]).decrypt(server[1])
+        newSessionKey = Fernet.generate_key()
+        ticket = [
+            Fernet(serverKey).encrypt(newSessionKey),
             Fernet(sessionKey).encrypt(newSessionKey),
             IPsAndPorts[decryptedServer][0],
             IPsAndPorts[decryptedServer][1]
@@ -103,7 +120,6 @@ def ticketAuth(soc):
         else:
             soc.send(bytes("y", "utf-8"))
             soc.send(dumps(ticket[0]))
-            runServer(ticket[1])
 
     else:
         soc.send(bytes("n", "utf-8"))
@@ -112,7 +128,7 @@ def ticketAuth(soc):
 def ticketGeneratingServer():
     TGSServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = socket.gethostname()
-    port = 9005
+    port = 9008
     TGSServer.bind((host, port))
     clients = []
     TGSServer.listen()

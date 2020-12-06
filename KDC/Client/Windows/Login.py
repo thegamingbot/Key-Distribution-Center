@@ -13,13 +13,13 @@ from cryptography.fernet import Fernet
 import socket
 from pickle import dumps, loads
 
-from Client.Helpers.customized import PasswordEdit
+from KDC.Client.Helpers.customized import PasswordEdit
 
 
 def auth(args):
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = socket.gethostname()
-    port = 9004
+    port = 9009
     soc.connect((host, port))
     soc.send(dumps(args))
     verify = soc.recv(1).decode('utf-8')
@@ -206,7 +206,6 @@ class Login(QtWidgets.QWidget):
         elif isinstance(verify, list):
             userKey = password * 5
             cipher = Fernet(base64.urlsafe_b64encode(bytes(userKey[:32], "utf-8")))
-            print(verify)
             self.switch_window.emit(username, cipher.decrypt(verify[1]), verify[0])
 
     def register(self):

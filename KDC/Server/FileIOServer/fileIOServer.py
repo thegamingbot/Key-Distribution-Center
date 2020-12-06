@@ -8,16 +8,38 @@ r"""__  __                               _             __          __
 # Import the required libraries
 import os
 import platform
+import sqlite3
 import subprocess
 import sys
+from pickle import loads
 from socket import *
 import time
 
-from Kerberos.constants import IPsAndPorts
-from verify import *
+from cryptography.fernet import Fernet
+
+from KDC.constants import IPsAndPorts
 
 
 # Open the file in the default application
+from KDC.Server.FileIOServer.verify import *
+
+
+def recvTicket(csoc):
+    ticket = loads(csoc.recv(2048))
+    conn = sqlite3.connect('../../sqlite.db')
+    server = conn.execute('''
+        SELECT USERNAME, PASSWORD, ENCRYPT_KEY
+        FROM SERVER WHERE USERNAME='fileTransfer';''').fetchone()
+    serverKey = Fernet(server[2]).decrypt(server[1])
+    if Fernet(serverKey).decrypt(ticket[1]) == ticket[0]:
+        csoc.send(bytes("y", "utf-8"))
+    else:
+        csoc.send(bytes("n", "utf-8"))
+        csoc.close()
+        while True:
+            x = 1
+
+
 def openFile(fileName):
     # If the platform is Windows
     if platform.system() == 'Windows':
@@ -47,7 +69,7 @@ def fileIOServer():
     serverSocket.listen(10)
     # Accept the connection request from a client
     clientSocket, clientAddress = serverSocket.accept()
-
+    recvTicket(clientSocket)
     # Expected sequence number
     expSeqN = 1
 

@@ -1,10 +1,13 @@
+import sqlite3
 from pickle import dumps, loads
 from random import shuffle
 from socket import *
 from threading import Thread
 from time import time
 
-from Kerberos.constants import IPsAndPorts
+from cryptography.fernet import Fernet
+
+from KDC.constants import IPsAndPorts
 
 
 def initQuestions():
@@ -70,6 +73,22 @@ def gameLoop(data):
     data["client"].close()
 
 
+def recvTicket(csoc):
+    ticket = loads(csoc.recv(2048))
+    conn = sqlite3.connect('../../sqlite.db')
+    server = conn.execute('''
+        SELECT USERNAME, PASSWORD, ENCRYPT_KEY
+        FROM SERVER WHERE USERNAME='quiz';''').fetchone()
+    serverKey = Fernet(server[2]).decrypt(server[1])
+    if Fernet(serverKey).decrypt(ticket[1]) == ticket[0]:
+        csoc.send(bytes("y", "utf-8"))
+    else:
+        csoc.send(bytes("n", "utf-8"))
+        csoc.close()
+        while True:
+            x = 1
+
+
 def quizServer():
     server = socket(AF_INET, SOCK_STREAM)
     host = IPsAndPorts["Quiz Server"][0]
@@ -78,6 +97,7 @@ def quizServer():
     server.listen()
     while True:
         client, addr = server.accept()
+        recvTicket(client)
         clients.append({"client": client, "addr": addr, "name": "", "time": 1000.0})
         clientThread = Thread(target=gameLoop, args=(clients[-1],))
         clientThread.start()

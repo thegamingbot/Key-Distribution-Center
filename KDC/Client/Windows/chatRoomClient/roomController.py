@@ -1,5 +1,5 @@
-from Client.Windows.chatRoomClient.chat_window import ChatRoom
-from Client.Windows.chatRoomClient.login_room import startUI
+from chat_window import ChatRoom
+from login_room import startUI
 
 
 class ChatRoomController:

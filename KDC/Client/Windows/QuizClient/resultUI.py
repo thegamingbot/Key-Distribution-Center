@@ -121,5 +121,4 @@ class resultUI(QtWidgets.QWidget):
 
     def getResults(self):
         result = loads(self.client.recv(1024))
-        print(result)
         self.retranslateUi(result[0], result[1])

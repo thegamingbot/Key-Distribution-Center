@@ -1,5 +1,6 @@
 import sys
 import socket
+from pickle import dumps
 from time import *
 from PyQt5 import QtCore, QtWidgets
 import re
@@ -15,8 +16,8 @@ class ChatRoom(QtWidgets.QWidget):
     def __init__(self, name, ticket):
         super().__init__()
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.IP = ticket[2]
-        self.PORT = ticket[3]
+        self.host = ticket[2]
+        self.port = ticket[3]
         self.sessionKey = Fernet(ticket[4]).decrypt(ticket[1])
         self.ticket = ticket[0]
         self.name = name
@@ -113,11 +114,22 @@ class ChatRoom(QtWidgets.QWidget):
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
-        self.client_run()
+        self.sendTicket()
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Chat Room", "Chat Room - " + self.name))
+
+    def sendTicket(self):
+        self.setEnabled(False)
+        self.client_socket.connect((self.host, self.port))
+        self.client_socket.send(dumps([self.sessionKey, self.ticket]))
+        verify = self.client_socket.recv(1).decode("utf-8")
+        if verify == "n":
+            sys.exit()
+        else:
+            self.setEnabled(True)
+            self.client_run()
 
     def send_msg(self):
         msg = self.textBox.toPlainText()
@@ -134,7 +146,6 @@ class ChatRoom(QtWidgets.QWidget):
         self.messagesBox.verticalScrollBar().setValue(self.messagesBox.verticalScrollBar().maximum())
 
     def client_run(self):
-        self.client_socket.connect((self.IP, self.PORT))
         # Prepare username and header and send them
         username = self.name.encode('utf-8')
         username_len = f"{len(username):<{MAX}}".encode('utf-8')
