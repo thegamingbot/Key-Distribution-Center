@@ -4,7 +4,7 @@ import sqlite3
 from cryptography.fernet import Fernet
 from pickle import loads, dumps
 from threading import *
-from KDC.constants import IPsAndPorts
+from constants import IPsAndPorts
 
 masterKey = Fernet.generate_key()
 

@@ -6,8 +6,7 @@ from threading import Thread
 from time import time
 
 from cryptography.fernet import Fernet
-
-from KDC.constants import IPsAndPorts
+from constants import IPsAndPorts
 
 
 def initQuestions():
@@ -75,7 +74,7 @@ def gameLoop(data):
 
 def recvTicket(csoc):
     ticket = loads(csoc.recv(2048))
-    conn = sqlite3.connect('../../sqlite.db')
+    conn = sqlite3.connect('../sqlite.db')
     server = conn.execute('''
         SELECT USERNAME, PASSWORD, ENCRYPT_KEY
         FROM SERVER WHERE USERNAME='quiz';''').fetchone()
