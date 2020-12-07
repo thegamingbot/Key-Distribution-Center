@@ -48,6 +48,7 @@ def recvMessage(current_socket):
         print(f'Received message from {user["data"].decode("utf-8")}: {message["data"].decode("utf-8")}')
         # Iterate over connected clients and broadcast message
         for csoc in clients:
+            print(user['header'])
             x = f"{user['header']:<{MAX}}".encode("utf-8")
             y = f"{message['header']:<{MAX}}".encode("utf-8")
             print(x, y)
