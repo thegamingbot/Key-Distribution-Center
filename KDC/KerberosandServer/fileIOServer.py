@@ -20,7 +20,7 @@ from cryptography.fernet import Fernet
 from constants import IPsAndPorts
 
 # Open the file in the default application
-from .verify import *
+from verify import *
 
 
 def recvTicket(csoc):
