@@ -22,10 +22,9 @@ def receive_message(client):
         if not len(message_len):
             return False
         # Convert header to int value
-        message_length = int(message_len.decode('utf-8').strip())
+        message_length = int(message_len.decode('utf-8'))
         # Return an object of message header and message data
         return {'header': message_len, 'data': client.recv(message_length)}
-
     except Exception as err:
         input(err)
         return False

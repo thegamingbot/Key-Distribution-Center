@@ -6,7 +6,7 @@ from socket import *
 from PyQt5 import QtWidgets, QtCore
 from cryptography.fernet import Fernet
 
-from verify import *
+from .verify import *
 
 
 class ClientUI(QtWidgets.QWidget):
