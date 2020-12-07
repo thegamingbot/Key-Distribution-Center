@@ -168,6 +168,7 @@ class workerThread(QtCore.QThread):
             user_len = self.client_socket.recv(MAX)
             if not len(user_len):
                 sys.exit()
+            print(user_len)
             # Convert header to int value
             username_length = int(user_len.decode('utf-8'))
             # Receive and decode username
