@@ -174,6 +174,6 @@ class workerThread(QtCore.QThread):
             username = self.client_socket.recv(username_length).decode('utf-8')
             # Now do the same for message
             message_len = self.client_socket.recv(MAX)
-            message_length = int(message_len.decode('utf-8').strip())
+            message_length = int(message_len.decode('utf-8'))
             message = self.client_socket.recv(message_length).decode('utf-8')
             self.updateMessage.emit(username, message)
