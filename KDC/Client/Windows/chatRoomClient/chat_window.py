@@ -166,15 +166,18 @@ class workerThread(QtCore.QThread):
         while True:
             # Receive our "header" containing username length, it's size is defined and constant
             user_len = self.client_socket.recv(MAX)
+            print(user_len)
             if not len(user_len):
                 sys.exit()
-            print(user_len)
             # Convert header to int value
             username_length = int(user_len.decode('utf-8'))
             # Receive and decode username
             username = self.client_socket.recv(username_length).decode('utf-8')
+            print(username)
             # Now do the same for message
             message_len = self.client_socket.recv(MAX)
+            print(message_len)
             message_length = int(message_len.decode('utf-8'))
             message = self.client_socket.recv(message_length).decode('utf-8')
+            print(message)
             self.updateMessage.emit(username, message)

@@ -50,7 +50,10 @@ def recvMessage(current_socket):
         for csoc in clients:
             print(user['header'] + user['data'] + message['header'] + message['data'])
             # Send user and message (both with their headers)
-            csoc.send(user['header'] + user['data'] + message['header'] + message['data'])
+            csoc.send(user['header'])
+            csoc.send(user['data'])
+            csoc.send(message['header'])
+            csoc.send(message['data'])
 
 
 def recvTicket(csoc):
