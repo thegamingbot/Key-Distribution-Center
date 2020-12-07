@@ -140,7 +140,7 @@ class startUI(QtWidgets.QWidget):
         if re.match(r'^\s*$', msg):
             return
         self.client.send(bytes(self.lineEdit.text(), "utf-8"))
-        questions = loads(self.client.recv(20240))
+        questions = loads(self.client.recv(10240))
         self.switch_window.emit(msg, questions, self.client)
 
     def sendTicket(self):

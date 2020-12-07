@@ -211,23 +211,21 @@ class ClientUI(QtWidgets.QWidget):
         # Get the time of the last acknowledgement
         lastAckTime = time.time()
         # While there exists data in the window or not done
-        while not done or window:
-            # If there exists a space in the window and file is not done
-            if (nextSeqN < base + windowSize) and not done:
-                # Create the send packet with the data and sequence number
-                sendPacket = makePkt(nextSeqN, data)
-                # Send the created packet
-                self.clientSocket.send(sendPacket)
-                # Go the the next sequence number
-                nextSeqN = nextSeqN + 1
-                # Append the send packet to the window
-                window.append(sendPacket)
-                # Read the next data
-                data = fp.read(1024)
-                # If data is not available
-                if not data:
-                    # Done is true
-                    done = True
+        while not done:
+            # Create the send packet with the data and sequence number
+            sendPacket = makePkt(nextSeqN, data)
+            # Send the created packet
+            self.clientSocket.send(sendPacket)
+            # Go the the next sequence number
+            nextSeqN = nextSeqN + 1
+            # Append the send packet to the window
+            window.append(sendPacket)
+            # Read the next data
+            data = fp.read(1024)
+            # If data is not available
+            if not data:
+                # Done is true
+                done = True
         # Close the file
         fp.close()
         # Close the socket
