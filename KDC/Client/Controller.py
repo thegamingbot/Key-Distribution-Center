@@ -1,6 +1,6 @@
-from KDC.Client.Windows.FileIOClient.ClientGUI import ClientUI
-from KDC.Client.Windows.QuizClient.quizController import QuizController
-from KDC.Client.Windows.chatRoomClient.roomController import ChatRoomController
+from Windows.FileIOClient.ClientGUI import ClientUI
+from Windows.QuizClient.quizController import QuizController
+from Windows.chatRoomClient.roomController import ChatRoomController
 from Windows.Login import Login
 from Windows.MainWindow import MainWindow
 

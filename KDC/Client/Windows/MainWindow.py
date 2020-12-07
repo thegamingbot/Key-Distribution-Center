@@ -50,6 +50,9 @@ class MainWindow(QtWidgets.QWidget):
         )
         self.formLayout_2.setContentsMargins(50, 35, 59, -1)
 
+        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem)
+
         self.cb.addItems(["Chat App Server", "Quiz Server", "File Transfer Server"])
         self.cb.setStyleSheet("QComboBox {\n"
                               "color: red;\n"

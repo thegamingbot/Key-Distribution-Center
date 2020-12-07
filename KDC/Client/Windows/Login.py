@@ -13,7 +13,7 @@ from cryptography.fernet import Fernet
 import socket
 from pickle import dumps, loads
 
-from KDC.Client.Helpers.customized import PasswordEdit
+from .customized import PasswordEdit
 
 
 def auth(args):

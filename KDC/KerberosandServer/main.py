@@ -4,7 +4,7 @@ import sqlite3
 from cryptography.fernet import Fernet
 from pickle import loads, dumps
 from threading import *
-from constants import IPsAndPorts
+from constants import *
 
 masterKey = Fernet.generate_key()
 
@@ -54,8 +54,8 @@ def authentication(soc):
 
 def authenticationServer():
     authServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = socket.gethostname()
-    port = 9009
+    host = ""
+    port = ASPort
     authServer.bind((host, port))
     clients = []
     authServer.listen()
@@ -127,8 +127,8 @@ def ticketAuth(soc):
 
 def ticketGeneratingServer():
     TGSServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = socket.gethostname()
-    port = 9008
+    host = ""
+    port = TGSPort
     TGSServer.bind((host, port))
     clients = []
     TGSServer.listen()

@@ -21,7 +21,7 @@ from constants import IPsAndPorts
 
 
 # Open the file in the default application
-from KDC.KerberosandServer.verify import *
+from .verify import *
 
 
 def recvTicket(csoc):
@@ -56,7 +56,7 @@ def openFile(fileName):
 # Main driver function for the server
 def fileIOServer():
     # Get the host name
-    host = IPsAndPorts["File Transfer Server"][0]
+    host = ""
     # Get the port number
     port = IPsAndPorts["File Transfer Server"][1]
 

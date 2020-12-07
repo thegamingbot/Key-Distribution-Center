@@ -90,7 +90,7 @@ def recvTicket(csoc):
 
 def quizServer():
     server = socket(AF_INET, SOCK_STREAM)
-    host = IPsAndPorts["Quiz Server"][0]
+    host = ""
     port = IPsAndPorts["Quiz Server"][1]
     server.bind((host, port))
     server.listen()
