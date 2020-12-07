@@ -49,7 +49,7 @@ def recvMessage(current_socket):
         # Iterate over connected clients and broadcast message
         for csoc in clients:
             # Send user and message (both with their headers)
-            csoc.send(f"{user['header']:<{MAX}}" + user['data'] + f"{message['header']:<{MAX}}" + message['data'])
+            csoc.send(f"{user['header']:<{MAX}}".decode("utf-8") + user['data'] + f"{message['header']:<{MAX}}".decode("utf-8") + message['data'])
 
 
 def recvTicket(csoc):
