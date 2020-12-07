@@ -6,7 +6,7 @@ from threading import Thread
 from time import time
 
 from cryptography.fernet import Fernet
-from constants import IPsAndPorts
+from KDC.KerberosandServer.constants import IPsAndPorts
 
 
 def initQuestions():

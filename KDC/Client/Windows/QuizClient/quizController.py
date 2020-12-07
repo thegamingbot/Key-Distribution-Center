@@ -1,6 +1,6 @@
-from QuizForm import QuizForm
-from resultUI import resultUI
-from startUI import startUI
+from KDC.Client.Windows.QuizClient.QuizForm import QuizForm
+from KDC.Client.Windows.QuizClient.resultUI import resultUI
+from KDC.Client.Windows.QuizClient.startUI import startUI
 
 
 class QuizController:
