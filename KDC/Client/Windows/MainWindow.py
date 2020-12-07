@@ -120,7 +120,7 @@ class MainWindow(QtWidgets.QWidget):
         self.cb.setEnabled(False)
         soc = socket(AF_INET, SOCK_STREAM)
         host = gethostname()
-        port = 9008
+        port = 8050
         selection = self.cb.currentText()
         soc.connect((host, port))
         soc.send(dumps([self.sessionKey, self.TGT, Fernet(self.sessionKey)

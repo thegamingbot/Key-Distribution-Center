@@ -20,6 +20,7 @@ class ChatRoom(QtWidgets.QWidget):
         self.port = ticket[3]
         self.sessionKey = Fernet(ticket[4]).decrypt(ticket[1])
         self.ticket = ticket[0]
+        print(self.host, self.port)
         self.name = name
         self.worker = workerThread(self.client_socket)
         self.widget = QtWidgets.QWidget(self)

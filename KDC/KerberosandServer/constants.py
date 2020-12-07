@@ -1,7 +1,7 @@
 IPsAndPorts = {
-    "Chat App Server": ['34.67.5.235', 8003],
-    "Quiz Server": ['127.0.0.3', 9011],
-    "File Transfer Server": ['127.0.0.4', 9012]
+    "Chat App Server": ['34.122.191.187', 8010],
+    "Quiz Server": ['35.193.166.163', 8020],
+    "File Transfer Server": ['34.67.64.56', 8030]
 }
-ASPort = 9009
-TGSPort = 9008
+ASPort = 8040
+TGSPort = 8050

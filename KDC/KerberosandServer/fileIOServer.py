@@ -13,12 +13,11 @@ import subprocess
 import sys
 from pickle import loads
 from socket import *
-import time
+from threading import Thread
 
 from cryptography.fernet import Fernet
 
 from constants import IPsAndPorts
-
 
 # Open the file in the default application
 from .verify import *
@@ -40,49 +39,16 @@ def recvTicket(csoc):
             x = 1
 
 
-def openFile(fileName):
-    # If the platform is Windows
-    if platform.system() == 'Windows':
-        # Start the file
-        os.startfile(fileName)
-    # If the platform is Linux
-    else:
-        # Call the file
-        subprocess.call(('xdg-open', fileName))
-    # Exit the program
-    sys.exit()
-
-
-# Main driver function for the server
-def fileIOServer():
-    # Get the host name
-    host = ""
-    # Get the port number
-    port = IPsAndPorts["File Transfer Server"][1]
-
-    # Create the server socket
-    serverSocket = socket(AF_INET, SOCK_STREAM)
-    # Bind the server to the host and port
-    serverSocket.bind((host, port))
-
-    # Listen for connection requests
-    serverSocket.listen(10)
-    # Accept the connection request from a client
-    clientSocket, clientAddress = serverSocket.accept()
+def runner(clientSocket):
     recvTicket(clientSocket)
     # Expected sequence number
     expSeqN = 1
-
     # Receive the file name
     fileName = clientSocket.recv(1024).decode("utf-8")
-
     # Open the file
     fp = open(fileName, "wb")
     # Initialize is EOF as false
     isEOF = False
-    # Get the time of the last packet time
-    lastPacketTime = time.time()
-
     # Run an infinite loop
     while True:
         # If eof is reached
@@ -128,6 +94,40 @@ def fileIOServer():
     fp.close()
     # Open the file
     openFile(fileName)
+
+
+def openFile(fileName):
+    # If the platform is Windows
+    if platform.system() == 'Windows':
+        # Start the file
+        os.startfile(fileName)
+    # If the platform is Linux
+    else:
+        # Call the file
+        subprocess.call(('xdg-open', fileName))
+    # Exit the program
+    sys.exit()
+
+
+# Main driver function for the server
+def fileIOServer():
+    # Get the host name
+    host = ""
+    # Get the port number
+    port = IPsAndPorts["File Transfer Server"][1]
+
+    # Create the server socket
+    serverSocket = socket(AF_INET, SOCK_STREAM)
+    # Bind the server to the host and port
+    serverSocket.bind((host, port))
+    clients = []
+    # Listen for connection requests
+    serverSocket.listen()
+    # Accept the connection request from a client
+    while True:
+        clientSocket, clientAddress = serverSocket.accept()
+        clients.append(clientSocket)
+        Thread(target=runner, args=(clients[-1], )).start()
 
 
 if __name__ == '__main__':

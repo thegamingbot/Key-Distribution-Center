@@ -19,7 +19,7 @@ from .customized import PasswordEdit
 def auth(args):
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = socket.gethostname()
-    port = 9009
+    port = 8040
     soc.connect((host, port))
     soc.send(dumps(args))
     verify = soc.recv(1).decode('utf-8')
