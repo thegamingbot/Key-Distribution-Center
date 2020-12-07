@@ -92,6 +92,7 @@ def runner(clientSocket):
             break
     # Close the file
     fp.close()
+    print("File received: " + fileName)
     # Open the file
     openFile(fileName)
 
