@@ -8,7 +8,7 @@ from cryptography.fernet import Fernet
 from constants import IPsAndPorts
 
 MAX = 1024
-IP = IPsAndPorts["Chat App Server"][0]
+IP = '0.0.0.0'
 PORT = IPsAndPorts["Chat App Server"][1]
 sockets_list = []
 clients = {}
