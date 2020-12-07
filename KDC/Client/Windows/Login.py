@@ -18,7 +18,7 @@ from .customized import PasswordEdit
 
 def auth(args):
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = socket.gethostname()
+    host = '34.123.186.87'
     port = 8040
     soc.connect((host, port))
     soc.send(dumps(args))
