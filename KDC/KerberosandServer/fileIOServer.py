@@ -77,14 +77,10 @@ def runner(clientSocket):
                     expSeqN = expSeqN + 1
                     # Make the acknowledgement packet
                     sendPacket = makeACK(expSeqN)
-                    # Send the acknowledgement packet
-                    clientSocket.send(sendPacket)
                 # If sequence numbers is mismatched
                 else:
                     # Make the acknowledgement packet
                     sendPacket = makeACK(expSeqN)
-                    # Send the acknowledgement packet
-                    clientSocket.send(sendPacket)
         # If the file was not received
         except Exception as e:
             # Print the error

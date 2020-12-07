@@ -228,32 +228,6 @@ class ClientUI(QtWidgets.QWidget):
                 if not data:
                     # Done is true
                     done = True
-            # Try receiving the acknowledgement
-            try:
-                # Receive the acknowledgement
-                packet = self.clientSocket.recv(4096)
-                # Parse and verify the received data
-                recvPacket, isCorrupt = parseAndVerify(packet)
-                # If the data is not corrupted
-                if not isCorrupt:
-                    # While receive packet greater than the lower bound and window is not empty
-                    while recvPacket[0] > base and window:
-                        # Update the time of latest acknowledgement
-                        lastAckTime = time.time()
-                        # Delete the first window
-                        del window[0]
-                        # Increment the base as the previous index is removed
-                        base = base + 1
-            # Exception if there is no acknowledgement
-            except Exception as e:
-                # Print the exception
-                print(e)
-                # If the time difference is greater than timeout
-                if time.time() - lastAckTime > timeOut:
-                    # Loop through the window
-                    for i in window:
-                        # Send each packet in the widow
-                        self.clientSocket.send(i)
         # Close the file
         fp.close()
         # Close the socket
