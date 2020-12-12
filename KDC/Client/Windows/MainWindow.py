@@ -119,7 +119,7 @@ class MainWindow(QtWidgets.QWidget):
     def getTicket(self):
         self.cb.setEnabled(False)
         soc = socket(AF_INET, SOCK_STREAM)
-        host = '34.123.186.87'
+        host = '34.67.114.239'
         port = 8050
         selection = self.cb.currentText()
         soc.connect((host, port))
