@@ -7,7 +7,6 @@ r"""__  __                               _             __          __
 """
 # Import the required libraries
 import os
-import platform
 import sqlite3
 import subprocess
 import sys
@@ -48,62 +47,24 @@ def runner(clientSocket):
     # Open the file
     fp = open(fileName, "wb")
     # Initialize is EOF as false
-    isEOF = False
-    # Run an infinite loop
-    while True:
-        # If eof is reached
-        if isEOF:
-            # Break out of the loop
-            break
-        # Try
-        try:
-            # Receive the file file packet
-            packet = clientSocket.recv(4096)
-            # Parse and verify the received packet
-            recvPacket, isCorrupt = parseAndVerify(packet)
-            # If the received data is not corrupted
-            if not isCorrupt:
-                # If the received sequence number is the same as expected sequence number
-                if recvPacket[0] == expSeqN:
-                    # If the file data exists
-                    if recvPacket[1]:
-                        # Write the data
-                        fp.write(recvPacket[1])
-                    # If file data does not exits
-                    else:
-                        # EOF is reached
-                        isEOF = True
-                    # Increment the expected sequence number
-                    expSeqN = expSeqN + 1
-                    # Make the acknowledgement packet
-                    sendPacket = makeACK(expSeqN)
-                # If sequence numbers is mismatched
-                else:
-                    # Make the acknowledgement packet
-                    sendPacket = makeACK(expSeqN)
-        # If the file was not received
-        except Exception as e:
-            # Print the error
-            exceptions = [e]
-            break
+    fp.write(clientSocket.recv(20480))
     # Close the file
     fp.close()
     print("File received: " + fileName)
-    # Open the file
     # openFile(fileName)
 
 
-def openFile(fileName):
-    # If the platform is Windows
-    if platform.system() == 'Windows':
-        # Start the file
-        os.startfile(fileName)
-    # If the platform is Linux
-    else:
-        # Call the file
-        subprocess.call(('xdg-open', fileName))
-    # Exit the program
-    sys.exit()
+# def openFile(fileName):
+#     # If the platform is Windows
+#     if sys.platform.system() == 'Windows':
+#         # Start the file
+#         os.startfile(fileName)
+#     # If the platform is Linux
+#     else:
+#         # Call the file
+#         subprocess.call(('xdg-open', fileName))
+#     # Exit the program
+#     sys.exit()
 
 
 # Main driver function for the server

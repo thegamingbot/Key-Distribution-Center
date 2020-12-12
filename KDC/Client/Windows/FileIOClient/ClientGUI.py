@@ -194,38 +194,11 @@ class ClientUI(QtWidgets.QWidget):
         # Connect the socket to the appropriate host and port
         # Extract the file name from the file path and send it to the receiver
         self.clientSocket.send(bytes(os.path.basename(self.filePath), "utf-8"))
-        # Lower bound of the window
-        base = 1
-        # Next sequence number
-        nextSeqN = 1
-        # Window size extracted from the form
-        windowSize = int(self.windowSpinBar.text())
-        # Create the window list
-        window = []
         # Open the file
         fp = open(self.filePath, 'rb')
         # Read the data
-        data = fp.read(1024)
-        # Set done as False
-        done = False
-        # Get the time of the last acknowledgement
-        lastAckTime = time.time()
-        # While there exists data in the window or not done
-        while not done:
-            # Create the send packet with the data and sequence number
-            sendPacket = makePkt(nextSeqN, data)
-            # Send the created packet
-            self.clientSocket.send(sendPacket)
-            # Go the the next sequence number
-            nextSeqN = nextSeqN + 1
-            # Append the send packet to the window
-            window.append(sendPacket)
-            # Read the next data
-            data = fp.read(1024)
-            # If data is not available
-            if not data:
-                # Done is true
-                done = True
+        data = fp.read()
+        self.clientSocket.send(data)
         # Close the file
         fp.close()
         # Close the socket
